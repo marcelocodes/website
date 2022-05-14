@@ -111,3 +111,6 @@ Dockerfile.base
 !.env.example
 .vercel
 .output
+
+# PNPM stuff.
+.pnpm-store
