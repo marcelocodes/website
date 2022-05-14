@@ -17,20 +17,24 @@ const FILE_EXTENSION_TO_CONTENT_TYPE = new Map(
 
 async function handleRequest(request: Request): Promise<Response> {
 	const { pathname } = new URL(request.url);
+	console.log(`Request for: ${pathname}`);
 
 	const file = await Deno.readFile(pathname);
 
 	if (pathname.length < 4) {
-		throw new Error('Invalid pathname');
+		console.log(`Invalid pathname: ${pathname}`);
+		Deno.exit(1);
 	}
 
 	const fileExtension = pathname.slice(-4); // 'filename.css' => '.css'
 	const contentType = FILE_EXTENSION_TO_CONTENT_TYPE.get(fileExtension);
 
 	if (!contentType) {
-		throw new Error('Unsupported file type');
+		console.log(`Unsupported file type: ${fileExtension}`);
+		Deno.exit(1);
 	}
 
+	console.log('Serving!');
 	return new Response(file, {
 		headers: {
 			'content-type': contentType
