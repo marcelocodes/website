@@ -23,12 +23,14 @@ async function loadFile(pathname: string): Promise<Uint8Array> {
 	return await Deno.readFile(`./build${pathname}`);
 }
 
-// Example:
-//
-//  'filename.css'.split('.') =>
-//  ['filename', 'css'].slice(-1) =>
-//  ['css'][0] =>
-//  'css'
+/**
+ * Example:
+ *
+ *  'filename.css'
+ * 		.split('.')  // => ['filename', 'css']
+ * 		.slice(-1)   // => ['css']
+ *    [0]          // => 'css'
+ */
 function getExtension(pathname: string): string {
 	return pathname.split('.').slice(-1)[0];
 }
@@ -45,16 +47,11 @@ function getContentType(pathname: string): string | Error {
 }
 
 function shouldServeRoot(pathname: string): boolean {
-	if (pathname === '/') {
-		return true;
-	}
-
 	const extension = getExtension(pathname);
-	if (!FILE_EXTENSION_TO_CONTENT_TYPE.get(extension)) {
-		return true;
-	}
+	const isUnsupportedPathOrFileExtension = !FILE_EXTENSION_TO_CONTENT_TYPE.get(extension);
+	const isIndex = pathname === '/';
 
-	return false;
+	return isIndex || isUnsupportedPathOrFileExtension;
 }
 
 async function handleRequest(request: Request): Promise<Response> {
@@ -63,7 +60,7 @@ async function handleRequest(request: Request): Promise<Response> {
 	if (shouldServeRoot(pathname)) {
 		return new Response(await loadFile('/index.html'), {
 			headers: {
-				'content-type': 'text/html; charset=utf-8'
+				'content-type': FILE_EXTENSION_TO_CONTENT_TYPE.get('html') ?? '' // 'html' is there.
 			}
 		});
 	}
