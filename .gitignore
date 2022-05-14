@@ -103,7 +103,6 @@ dist
 Dockerfile.base
 
 .DS_Store
-/build
 /.svelte-kit
 /package
 .env
@@ -114,3 +113,6 @@ Dockerfile.base
 
 # PNPM stuff.
 .pnpm-store
+
+# Commit svelte output.
+# /build

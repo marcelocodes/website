@@ -1,54 +1,42 @@
-import { join } from 'https://deno.land/std@0.139.0/path/mod.ts';
-// import { serve } from 'https://deno.land/std@0.114.0/http/server.ts';
+import { serve } from 'https://deno.land/std@0.114.0/http/server.ts';
 
-async function findFiles(basePath: string, nextPath: string) {
-	const currentPath = join(basePath, nextPath);
-	for await (const file of Deno.readDir(currentPath)) {
-		console.log(join(currentPath, file.name));
-		if (file.isDirectory) {
-			findFiles(currentPath, file.name);
-		}
+const FILE_EXTENSION_TO_CONTENT_TYPE = new Map(
+	Object.entries({
+		'.css': 'text/css',
+		'.js': 'text/javascript',
+		'.woff': 'font/woff',
+		'.woff2': 'font/woff2',
+		'.svg': 'image/svg+xml',
+		'.json': 'application/json',
+		'.html': 'text/html; charset=utf-8',
+		'.png': 'image/png',
+		'.txt': 'text/plain',
+		'.webp': 'image/webp'
+	})
+);
+
+async function handleRequest(request: Request): Promise<Response> {
+	const { pathname } = new URL(request.url);
+
+	const file = await Deno.readFile(pathname);
+
+	if (pathname.length < 4) {
+		throw new Error('Invalid pathname');
 	}
+
+	const fileExtension = pathname.slice(-4); // 'filename.css' => '.css'
+	const contentType = FILE_EXTENSION_TO_CONTENT_TYPE.get(fileExtension);
+
+	if (!contentType) {
+		throw new Error('Unsupported file type');
+	}
+
+	return new Response(file, {
+		headers: {
+			'content-type': contentType
+		}
+	});
 }
 
-findFiles('./build', '');
-
-// async function handleRequest(request: Request): Promise<Response> {
-// 	const { pathname } = new URL(request.url);
-
-// 	// This is how the server works:
-// 	// 1. A request comes in for a specific asset.
-// 	// 2. We read the asset from the file system.
-// 	// 3. We send the asset back to the client.
-
-// 	// Check if the request is for style.css.
-// 	if (pathname.startsWith('/style.css')) {
-// 		// Read the style.css file from the file system.
-// 		const file = await Deno.readFile('./style.css');
-// 		// Respond to the request with the style.css file.
-// 		return new Response(file, {
-// 			headers: {
-// 				'content-type': 'text/css'
-// 			}
-// 		});
-// 	}
-
-// 	return new Response(
-// 		`<html>
-//       <head>
-//         <link rel="stylesheet" href="style.css" />
-//       </head>
-//       <body>
-//         <h1>Example</h1>
-//       </body>
-//     </html>`,
-// 		{
-// 			headers: {
-// 				'content-type': 'text/html; charset=utf-8'
-// 			}
-// 		}
-// 	);
-// }
-
-// // console.log('Listening on http://localhost:8000');
-// // serve(handleRequest);
+console.log('Listening on http://localhost:8000');
+serve(handleRequest);
