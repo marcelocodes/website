@@ -5,6 +5,7 @@ specifiers:
   '@lukeed/uuid': ^2.0.0
   '@playwright/test': ^1.21.0
   '@sveltejs/adapter-auto': next
+  '@sveltejs/adapter-static': ^1.0.0-next.30
   '@sveltejs/kit': next
   '@types/cookie': ^0.4.1
   '@typescript-eslint/eslint-plugin': ^5.10.1
@@ -29,6 +30,7 @@ dependencies:
 devDependencies:
   '@playwright/test': 1.22.0
   '@sveltejs/adapter-auto': 1.0.0-next.42
+  '@sveltejs/adapter-static': 1.0.0-next.30
   '@sveltejs/kit': 1.0.0-next.330_svelte@3.48.0
   '@types/cookie': 0.4.1
   '@typescript-eslint/eslint-plugin': 5.23.0_17b6d2ce7129f0b36f2c30ae592c16e7
@@ -155,6 +157,12 @@ packages:
     dependencies:
       '@iarna/toml': 2.2.5
       esbuild: 0.14.39
+      tiny-glob: 0.2.9
+    dev: true
+
+  /@sveltejs/adapter-static/1.0.0-next.30:
+    resolution: {integrity: sha512-xJPOXuj4T/lw9pZpMQAoN68TgrOPp/zOldvSFA+A5CIhb8yLXkgxOWh6UDUrbVxM1NjOdt8lwPdZfdkh5FL2Fg==}
+    dependencies:
       tiny-glob: 0.2.9
     dev: true
 
