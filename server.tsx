@@ -1,33 +1,54 @@
-/** @jsx h */
-/// <reference no-default-lib="true"/>
-/// <reference lib="dom" />
-/// <reference lib="dom.asynciterable" />
-/// <reference lib="deno.ns" />
+import { join } from 'https://deno.land/std@0.139.0/path/mod.ts';
+// import { serve } from 'https://deno.land/std@0.114.0/http/server.ts';
 
-import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
-import { h, renderSSR } from "https://deno.land/x/nano_jsx@v0.0.20/mod.ts";
-
-function App() {
-  return (
-    <html>
-      <head>
-        <title>JSX!</title>
-      </head>
-      <body>
-        <h1>Hello world</h1>
-      </body>
-    </html>
-  );
+async function findFiles(basePath: string, nextPath: string) {
+	const currentPath = join(basePath, nextPath);
+	for await (const file of Deno.readDir(currentPath)) {
+		console.log(join(currentPath, file.name));
+		if (file.isDirectory) {
+			findFiles(currentPath, file.name);
+		}
+	}
 }
 
-function handler(req) {
-  const html = renderSSR(<App />);
-  return new Response(html, {
-    headers: {
-      "content-type": "text/html",
-    },
-  });
-}
+findFiles('./build', '');
 
-console.log("Listening on http://localhost:8000");
-serve(handler);
+// async function handleRequest(request: Request): Promise<Response> {
+// 	const { pathname } = new URL(request.url);
+
+// 	// This is how the server works:
+// 	// 1. A request comes in for a specific asset.
+// 	// 2. We read the asset from the file system.
+// 	// 3. We send the asset back to the client.
+
+// 	// Check if the request is for style.css.
+// 	if (pathname.startsWith('/style.css')) {
+// 		// Read the style.css file from the file system.
+// 		const file = await Deno.readFile('./style.css');
+// 		// Respond to the request with the style.css file.
+// 		return new Response(file, {
+// 			headers: {
+// 				'content-type': 'text/css'
+// 			}
+// 		});
+// 	}
+
+// 	return new Response(
+// 		`<html>
+//       <head>
+//         <link rel="stylesheet" href="style.css" />
+//       </head>
+//       <body>
+//         <h1>Example</h1>
+//       </body>
+//     </html>`,
+// 		{
+// 			headers: {
+// 				'content-type': 'text/html; charset=utf-8'
+// 			}
+// 		}
+// 	);
+// }
+
+// // console.log('Listening on http://localhost:8000');
+// // serve(handleRequest);
