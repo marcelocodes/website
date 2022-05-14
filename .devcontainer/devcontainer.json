@@ -19,7 +19,8 @@
 		"eamodio.gitlens",
 		"esbenp.prettier-vscode",
 		"svelte.svelte-vscode",
-		"ms-azuretools.vscode-docker"
+		"ms-azuretools.vscode-docker",
+		"ms-playwright.playwright"
 	]
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
