@@ -49,7 +49,6 @@ export async function loadResource(pathname: string): Promise<Response> {
 	//    .slice(-1)   // => ['css']
 	//    [0]          // => 'css'
 	const extension = pathname.split('.').slice(-1)[0];
-	console.log(extension);
 
 	const headers = {
 		'content-type': FILE_EXTENSION_TO_CONTENT_TYPE.get(extension) ?? 'text/plain'
