@@ -14,8 +14,13 @@ const FILE_EXTENSION_TO_CONTENT_TYPE = new Map(
 	})
 );
 
-const contentTypeFromPathname = (pathname: string) =>
-	FILE_EXTENSION_TO_CONTENT_TYPE.get(pathname.split('.').slice(-1)[0]);
+const PATHNAME_TO_HTML_FILE = new Map(
+	Object.entries({
+		'/': '/index.html',
+		'/about': '/about.html',
+		'/synthetic/404': '/404.html'
+	})
+);
 
 /**
  * `pathname` has the format `/favicon.ico`, so we need to change it, to be able
@@ -26,30 +31,42 @@ async function loadFile(pathname: string): Promise<Uint8Array> {
 }
 
 export async function loadRoute(pathname: string): Promise<Response | null> {
-	if (pathname === '/') {
-		return new Response(await loadFile('/index.html'), {
-			headers: {
-				'content-type': FILE_EXTENSION_TO_CONTENT_TYPE.get('html') ?? '' // 'html' is there.
-			}
-		});
-	}
-	if (pathname === '/about') {
-		return new Response(await loadFile('/about.html'), {
-			headers: {
-				'content-type': FILE_EXTENSION_TO_CONTENT_TYPE.get('html') ?? '' // 'html' is there.
-			}
-		});
+	const html = PATHNAME_TO_HTML_FILE.get(pathname);
+	if (!html) {
+		return null;
 	}
 
-	return null;
+	return new Response(await loadFile(html), {
+		headers: {
+			'content-type': FILE_EXTENSION_TO_CONTENT_TYPE.get('html') ?? '' // 'html' is there.
+		}
+	});
 }
 
 export async function loadResource(pathname: string): Promise<Response> {
-	const contentType = contentTypeFromPathname(pathname);
+	// 'example.css'
+	//    .split('.')  // => ['example', 'css']
+	//    .slice(-1)   // => ['css']
+	//    [0]          // => 'css'
+	const extension = pathname.split('.').slice(-1)[0];
+	console.log(extension);
+
 	const headers = {
-		'content-type': contentType ?? 'text/plain'
+		'content-type': FILE_EXTENSION_TO_CONTENT_TYPE.get(extension) ?? 'text/plain'
 	};
 
-	const file = await loadFile(pathname);
+	let file;
+	try {
+		file = await loadFile(pathname);
+	} catch (_err) {
+		const synthetic404 = await loadRoute('/synthetic/404');
+		if (!synthetic404) {
+			console.log("Couldn't find 404 page.");
+			return new Response();
+		}
+
+		return synthetic404;
+	}
+
 	return new Response(file, { headers });
 }
