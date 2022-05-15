@@ -5,9 +5,8 @@
 	"main": "server.tsx",
 	"scripts": {
 		"dev": "svelte-kit dev",
-		"deno:dev": "deno run --watch --allow-read --allow-net ./server.tsx",
 		"build": "svelte-kit build",
-		"deno:preview": "deno run --allow-read --allow-net ./server.tsx",
+		"deno": "deno run --watch --allow-read --allow-net ./server.tsx",
 		"package": "svelte-kit package",
 		"preview": "svelte-kit preview",
 		"prepare": "svelte-kit sync",
