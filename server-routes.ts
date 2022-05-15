@@ -14,10 +14,15 @@ const FILE_EXTENSION_TO_CONTENT_TYPE = new Map(
 	})
 );
 
-const PATHNAME_TO_HTML_FILE = new Map(
+const ROUTES = new Map(
 	Object.entries({
 		'/': '/index.html',
-		'/about': '/about.html',
+		'/about': '/about.html'
+	})
+);
+
+const SYNTHETIC_ROUTES = new Map(
+	Object.entries({
 		'/synthetic/404': '/404.html'
 	})
 );
@@ -30,8 +35,11 @@ async function loadFile(pathname: string): Promise<Uint8Array> {
 	return await Deno.readFile(`./build${pathname}`);
 }
 
-export async function loadRoute(pathname: string): Promise<Response | null> {
-	const html = PATHNAME_TO_HTML_FILE.get(pathname);
+async function loadRouteBase(
+	pathname: string,
+	fileMap: Map<string, string>
+): Promise<Response | null> {
+	const html = fileMap.get(pathname);
 	if (!html) {
 		return null;
 	}
@@ -43,7 +51,22 @@ export async function loadRoute(pathname: string): Promise<Response | null> {
 	});
 }
 
-export async function loadResource(pathname: string): Promise<Response> {
+export async function loadRoute(pathname: string): Promise<Response | null> {
+	return await loadRouteBase(pathname, ROUTES);
+}
+
+export async function load404(): Promise<Response> {
+	const error404 = await loadRouteBase('/synthetic/404', SYNTHETIC_ROUTES);
+	if (!error404) {
+		// Should never get here, as we the synthetic page is manually put there.
+		console.log("Couldn't find 404 page.");
+		return new Response();
+	}
+
+	return error404;
+}
+
+export async function loadResource(pathname: string): Promise<Response | null> {
 	// 'example.css'
 	//    .split('.')  // => ['example', 'css']
 	//    .slice(-1)   // => ['css']
@@ -58,13 +81,7 @@ export async function loadResource(pathname: string): Promise<Response> {
 	try {
 		file = await loadFile(pathname);
 	} catch (_err) {
-		const synthetic404 = await loadRoute('/synthetic/404');
-		if (!synthetic404) {
-			console.log("Couldn't find 404 page.");
-			return new Response();
-		}
-
-		return synthetic404;
+		return null;
 	}
 
 	return new Response(file, { headers });
