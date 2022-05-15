@@ -1,33 +1,16 @@
-/** @jsx h */
-/// <reference no-default-lib="true"/>
-/// <reference lib="dom" />
-/// <reference lib="dom.asynciterable" />
-/// <reference lib="deno.ns" />
+import { serve } from './server-deps.ts';
+import { loadRoute, loadResource } from './server-routes.ts';
 
-import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
-import { h, renderSSR } from "https://deno.land/x/nano_jsx@v0.0.20/mod.ts";
+async function handleRequest(request: Request): Promise<Response> {
+	const { pathname } = new URL(request.url);
 
-function App() {
-  return (
-    <html>
-      <head>
-        <title>JSX!</title>
-      </head>
-      <body>
-        <h1>Hello world</h1>
-      </body>
-    </html>
-  );
+	const route = await loadRoute(pathname);
+	if (route) {
+		return route;
+	}
+
+	return await loadResource(pathname);
 }
 
-function handler(req) {
-  const html = renderSSR(<App />);
-  return new Response(html, {
-    headers: {
-      "content-type": "text/html",
-    },
-  });
-}
-
-console.log("Listening on http://localhost:8000");
-serve(handler);
+console.log('Serving...');
+serve(handleRequest);
