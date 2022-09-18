@@ -1,4 +1,5 @@
 <script context="module" lang="ts">
+	import { tw } from 'twind';
 	export const prerender = true;
 </script>
 
@@ -13,7 +14,7 @@
 
 <section>
 	<h1>
-		<div class="welcome">
+		<div class="welcome ${tw`h-screen bg-purple-400 flex items-center justify-center`}">
 			<picture>
 				<source srcset="svelte-welcome.webp" type="image/webp" />
 				<img src="svelte-welcome.png" alt="Welcome" />
